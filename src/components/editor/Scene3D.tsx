@@ -84,7 +84,6 @@ const SceneInner = ({
 				<Object3D
 					key={object.id}
 					object={object}
-					isSelected={object.id === selectedObjectId}
 					onSelect={selectObject}
 					onMeshReady={
 						object.id === selectedObjectId

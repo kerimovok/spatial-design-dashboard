@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import type { Mesh } from 'three'
 import type { Object3D as Object3DType, Size } from '../../types'
 
@@ -10,35 +10,22 @@ const sizeScale: Record<Size, number> = {
 
 type Object3DProps = {
 	object: Object3DType
-	isSelected: boolean
 	onSelect: (id: string) => void
 	onMeshReady?: (mesh: Mesh | null) => void
 }
 
-const Object3D = ({
-	object,
-	isSelected,
-	onSelect,
-	onMeshReady,
-}: Object3DProps) => {
+const Object3D = ({ object, onSelect, onMeshReady }: Object3DProps) => {
 	const [isHovered, setIsHovered] = useState(false)
 	const scale = sizeScale[object.size]
 
-	const color = useMemo(() => {
-		if (isSelected) {
-			return '#111827'
-		}
-		if (isHovered) {
-			return '#1f2937'
-		}
-		return object.color
-	}, [isHovered, isSelected, object.color])
+	const scaleMultiplier = isHovered ? 1.05 : 1
+	const finalScale = scale * scaleMultiplier
 
 	return (
 		<mesh
 			ref={onMeshReady}
 			position={[object.position.x, object.position.y, object.position.z]}
-			scale={[scale, scale, scale]}
+			scale={[finalScale, finalScale, finalScale]}
 			onPointerDown={(event) => {
 				event.stopPropagation()
 				onSelect(object.id)
@@ -48,9 +35,9 @@ const Object3D = ({
 		>
 			<boxGeometry args={[1, 1, 1]} />
 			<meshStandardMaterial
-				color={color}
-				emissive={isSelected ? '#111827' : '#000000'}
-				emissiveIntensity={isSelected ? 0.4 : 0.1}
+				color={object.color}
+				emissive={isHovered ? '#e67d22' : '#000000'}
+				emissiveIntensity={isHovered ? 0.4 : 0.05}
 				metalness={0.2}
 				roughness={0.4}
 			/>
