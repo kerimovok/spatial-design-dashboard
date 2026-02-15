@@ -1,3 +1,5 @@
+import DesignersList from '../components/designers/DesignerList'
+
 const DesignersPage = () => {
 	return (
 		<section className='space-y-6'>
@@ -11,9 +13,7 @@ const DesignersPage = () => {
 					into the 3D scene.
 				</p>
 			</div>
-			<div className='rounded-3xl border border-dashed border-black/15 bg-white/70 px-8 py-16 text-center text-sm text-black/50 shadow-[0_18px_60px_rgba(11,15,19,0.06)]'>
-				Designer management components will be placed here.
-			</div>
+			<DesignersList />
 		</section>
 	)
 }
