@@ -1,6 +1,48 @@
+import { useEffect, useMemo } from 'react'
 import Scene3D from '../components/editor/Scene3D'
+import ObjectPropertiesPanel from '../components/editor/ObjectPropertiesPanel'
+import { useObjectsStore } from '../store/useObjectsStore'
+import { useDesignersStore } from '../store/useDesignersStore'
 
 const EditorPage = () => {
+	const {
+		objects,
+		selectedObjectId,
+		isLoading,
+		error,
+		updateObject,
+		deleteObject,
+		selectObject,
+		fetchObjects,
+	} = useObjectsStore()
+	const { designers, fetchDesigners } = useDesignersStore()
+
+	useEffect(() => {
+		void fetchObjects()
+		void fetchDesigners()
+	}, [fetchObjects, fetchDesigners])
+
+	const selectedObject = useMemo(
+		() => objects.find((object) => object.id === selectedObjectId) ?? null,
+		[objects, selectedObjectId],
+	)
+
+	const handleUpdate = async (updates: any) => {
+		if (selectedObject) {
+			await updateObject(selectedObject.id, updates)
+		}
+	}
+
+	const handleDelete = async () => {
+		if (selectedObject) {
+			const success = await deleteObject(selectedObject.id)
+			if (success) {
+				selectObject(null)
+				await fetchObjects()
+			}
+		}
+	}
+
 	return (
 		<section className='space-y-6'>
 			<div className='space-y-2'>
@@ -17,9 +59,14 @@ const EditorPage = () => {
 			</div>
 			<div className='grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]'>
 				<Scene3D />
-				<aside className='rounded-[32px] border border-black/10 bg-white/70 p-6 text-sm text-black/50 shadow-[0_24px_70px_rgba(11,15,19,0.08)]'>
-					Select an object to see its properties.
-				</aside>
+				<ObjectPropertiesPanel
+					object={selectedObject}
+					designers={designers}
+					isSubmitting={isLoading}
+					error={error}
+					onUpdate={handleUpdate}
+					onDelete={handleDelete}
+				/>
 			</div>
 		</section>
 	)
