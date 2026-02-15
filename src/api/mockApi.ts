@@ -53,7 +53,7 @@ const seedObjects: Object3D[] = [
 		id: 'object-03',
 		name: 'Cube 3',
 		designerId: 'designer-harry-styles',
-		color: '#111827',
+		color: '#55cd43',
 		position: { x: 0.1, y: 0.5, z: 1.1 },
 		size: 'small',
 	},
