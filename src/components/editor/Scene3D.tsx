@@ -23,7 +23,9 @@ const SceneInner = ({
 		useObjectsStore()
 	const orbitRef = useRef<OrbitControlsImpl | null>(null)
 	const [isTransforming, setIsTransforming] = useState(false)
+	const [hoveredObjectId, setHoveredObjectId] = useState<string | null>(null)
 	const selectedMeshRef = useRef<Mesh | null>(null)
+	const objectMeshesRef = useRef<Map<string, Mesh>>(new Map())
 	const clickTimeRef = useRef<number>(0)
 
 	const selectedObject = useMemo(
@@ -64,6 +66,40 @@ const SceneInner = ({
 			gl.domElement.removeEventListener('click', handleCanvasClick)
 	}, [gl, camera, onPlacementClick])
 
+	// Problem: Three.js was firing onPointerOver events on all objects that the ray intersected, not just the closest one.
+	// Solution: Track pointer movement and do raycasting manually to only hover the closest intersected object.
+	useEffect(() => {
+		const handlePointerMove = (event: PointerEvent) => {
+			// Track pointer movement for raycasting hover detection
+			const canvas = gl.domElement
+			const rect = canvas.getBoundingClientRect()
+			mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+			mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+			// Cast ray from camera through mouse position
+			raycaster.setFromCamera(mouse, camera)
+
+			const meshes = Array.from(objectMeshesRef.current.values())
+			const intersects = raycaster.intersectObjects(meshes)
+
+			// Only hover the closest object to prevent multiple highlights through transparent objects
+			const closestIntersect = intersects[0]
+			if (closestIntersect) {
+				const mesh = closestIntersect.object as Mesh
+				const objectId = Array.from(
+					objectMeshesRef.current.entries(),
+				).find(([_, m]) => m === mesh)?.[0]
+				setHoveredObjectId(objectId ?? null)
+			} else {
+				setHoveredObjectId(null)
+			}
+		}
+
+		gl.domElement.addEventListener('pointermove', handlePointerMove)
+		return () =>
+			gl.domElement.removeEventListener('pointermove', handlePointerMove)
+	}, [gl, camera])
+
 	return (
 		<>
 			<ambientLight intensity={0.6} />
@@ -84,14 +120,19 @@ const SceneInner = ({
 				<Object3D
 					key={object.id}
 					object={object}
+					isHovered={hoveredObjectId === object.id}
 					onSelect={selectObject}
-					onMeshReady={
-						object.id === selectedObjectId
-							? (mesh) => {
-									selectedMeshRef.current = mesh
-								}
-							: undefined
-					}
+					onMeshReady={(mesh) => {
+						// Track meshes for raycasting hover detection
+						if (mesh) {
+							objectMeshesRef.current.set(object.id, mesh)
+						} else {
+							objectMeshesRef.current.delete(object.id)
+						}
+						if (object.id === selectedObjectId) {
+							selectedMeshRef.current = mesh
+						}
+					}}
 				/>
 			))}
 			{selectedObject && selectedMeshRef.current ? (

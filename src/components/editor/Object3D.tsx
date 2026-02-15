@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import type { Mesh } from 'three'
 import type { Object3D as Object3DType, Size } from '../../types'
 
@@ -10,12 +9,17 @@ const sizeScale: Record<Size, number> = {
 
 type Object3DProps = {
 	object: Object3DType
+	isHovered: boolean
 	onSelect: (id: string) => void
 	onMeshReady?: (mesh: Mesh | null) => void
 }
 
-const Object3D = ({ object, onSelect, onMeshReady }: Object3DProps) => {
-	const [isHovered, setIsHovered] = useState(false)
+const Object3D = ({
+	object,
+	isHovered,
+	onSelect,
+	onMeshReady,
+}: Object3DProps) => {
 	const scale = sizeScale[object.size]
 
 	const scaleMultiplier = isHovered ? 1.05 : 1
@@ -30,8 +34,6 @@ const Object3D = ({ object, onSelect, onMeshReady }: Object3DProps) => {
 				event.stopPropagation()
 				onSelect(object.id)
 			}}
-			onPointerOver={() => setIsHovered(true)}
-			onPointerOut={() => setIsHovered(false)}
 		>
 			<boxGeometry args={[1, 1, 1]} />
 			<meshStandardMaterial
