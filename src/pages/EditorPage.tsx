@@ -1,3 +1,5 @@
+import Scene3D from '../components/editor/Scene3D'
+
 const EditorPage = () => {
 	return (
 		<section className='space-y-6'>
@@ -13,8 +15,11 @@ const EditorPage = () => {
 					live 3D scene.
 				</p>
 			</div>
-			<div className='rounded-3xl border border-dashed border-black/15 bg-white/70 px-8 py-16 text-center text-sm text-black/50 shadow-[0_18px_60px_rgba(11,15,19,0.06)]'>
-				The 3D canvas and inspector will live here.
+			<div className='grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]'>
+				<Scene3D />
+				<aside className='rounded-[32px] border border-black/10 bg-white/70 p-6 text-sm text-black/50 shadow-[0_24px_70px_rgba(11,15,19,0.08)]'>
+					Select an object to see its properties.
+				</aside>
 			</div>
 		</section>
 	)
