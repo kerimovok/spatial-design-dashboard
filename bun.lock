@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "react-3d-task",
+      "name": "spatial-design-dashboard",
       "dependencies": {
         "@hookform/resolvers": "^5.2.2",
         "@react-three/drei": "^10.7.7",
