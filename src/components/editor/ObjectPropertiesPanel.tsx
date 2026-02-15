@@ -76,6 +76,8 @@ const ObjectPropertiesPanel = ({
 					error={errors.color?.message}
 					hint='Hex format: #FF5733'
 					register={register('color')}
+					// Just for the purposes of this task, I'm hardcoding the className here to make the color input look better.
+					className='w-full rounded-2xl border border-black/15 bg-white/70 text-sm tracking-normal text-black shadow-[0_12px_24px_rgba(11,15,19,0.05)] transition focus:border-black/40 focus:outline-none'
 				/>
 
 				<Select
