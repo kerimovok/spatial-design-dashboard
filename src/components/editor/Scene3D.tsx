@@ -16,7 +16,7 @@ const Scene3D = () => {
 	} = useObjectsStore()
 	const orbitRef = useRef<OrbitControlsImpl | null>(null)
 	const [isTransforming, setIsTransforming] = useState(false)
-	const [selectedMesh, setSelectedMesh] = useState<Mesh | null>(null)
+	const selectedMeshRef = useRef<Mesh | null>(null)
 
 	useEffect(() => {
 		void fetchObjects()
@@ -27,11 +27,6 @@ const Scene3D = () => {
 		[objects, selectedObjectId],
 	)
 
-	const handleSelect = (id: string | null) => {
-		setSelectedMesh(null)
-		selectObject(id)
-	}
-
 	return (
 		<div className='h-[480px] w-full rounded-[32px] border border-black/10 bg-white/70 shadow-[0_24px_70px_rgba(11,15,19,0.08)] overflow-hidden'>
 			<Canvas camera={{ position: [4, 5, 6], fov: 45 }}>
@@ -40,7 +35,7 @@ const Scene3D = () => {
 				<gridHelper args={[12, 12, '#d1d5db', '#e5e7eb']} />
 				<mesh
 					rotation={[-Math.PI / 2, 0, 0]}
-					onPointerDown={() => handleSelect(null)}
+					onPointerDown={() => selectObject(null)}
 				>
 					<planeGeometry args={[50, 50]} />
 					<meshStandardMaterial
@@ -54,17 +49,19 @@ const Scene3D = () => {
 						key={object.id}
 						object={object}
 						isSelected={object.id === selectedObjectId}
-						onSelect={handleSelect}
+						onSelect={selectObject}
 						onMeshReady={
 							object.id === selectedObjectId
-								? setSelectedMesh
+								? (mesh) => {
+										selectedMeshRef.current = mesh
+									}
 								: undefined
 						}
 					/>
 				))}
-				{selectedObject && selectedMesh ? (
+				{selectedObject && selectedMeshRef.current ? (
 					<TransformControls
-						object={selectedMesh}
+						object={selectedMeshRef.current}
 						mode='translate'
 						onMouseDown={() => {
 							setIsTransforming(true)
@@ -77,8 +74,9 @@ const Scene3D = () => {
 							if (orbitRef.current) {
 								orbitRef.current.enabled = true
 							}
-							if (selectedMesh) {
-								const { x, z } = selectedMesh.position
+							if (selectedMeshRef.current) {
+								const { x, z } =
+									selectedMeshRef.current.position
 								void updateObject(selectedObject.id, {
 									position: {
 										x,
